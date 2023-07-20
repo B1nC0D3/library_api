@@ -5,6 +5,8 @@ export interface IUserService<D, T extends User, I extends Item> {
 
     getAllUsers(): Promise<T[]>
 
+    getUser(user_id: number): Promise<User | null>
+
     createUser(username: string, email: string, user: T, role?: Role): Promise<T>
 
     updateUser(user_id: number, updated_data: object, user: T): Promise<T>

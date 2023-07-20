@@ -8,7 +8,7 @@ export class UserService implements IUserService<PrismaClient, User, Item> {
         this.db = db_instance
     }
 
-    isAdmin(user: User) {
+    private isAdmin(user: User) {
         if (user.role !== Role.ADMIN) {
             throw new Error('You are not a admin')
         }
@@ -32,6 +32,14 @@ export class UserService implements IUserService<PrismaClient, User, Item> {
 
     async getAllUsers(): Promise<User[]> {
         return this.db.user.findMany()
+    }
+
+    async getUser(user_id: number): Promise<User | null> {
+        return this.db.user.findFirst({
+            where: {
+                id: user_id
+            }
+        })
     }
 
     updateUser(user_id: number, updated_data: object, user: User): Promise<User> {
