@@ -1,15 +1,20 @@
-import {PrismaClient} from "prisma/prisma-client/scripts/default-index";
+import {PrismaClient, User, Item, Role} from '@prisma/client';
+import {IUserService} from "../interfaces/userService";
 
-class UserService implements IUserService<PrismaClient, User> {
+export class UserService implements IUserService<PrismaClient, User, Item> {
     db: PrismaClient
 
+    constructor(db_instance: PrismaClient) {
+        this.db = db_instance
+    }
+
     isAdmin(user: User) {
-        if (user.role !== Roles.ADMIN) {
+        if (user.role !== Role.ADMIN) {
             throw new Error('You are not a admin')
         }
     }
 
-    createUser(username: string, email: string, user: User, role?: Roles): User {
+    createUser(username: string, email: string, user: User, role?: Role): Promise<User> {
         this.isAdmin(user)
         return this.db.user.create({
             data: {
@@ -20,20 +25,16 @@ class UserService implements IUserService<PrismaClient, User> {
         })
     }
 
-    deleteUser(user_id: number, user: User): void {
+    async deleteUser(user_id: number, user: User): Promise<User> {
         this.isAdmin(user)
-        this.db.user.delete({
-            where: {
-                id: user_id
-            }
-        })
+        return this.db.user.delete({where: {id: user_id}});
     }
 
-    getAllUsers(): User[] {
+    async getAllUsers(): Promise<User[]> {
         return this.db.user.findMany()
     }
 
-    updateUser(user_id: number, updated_data: object, user: User): User {
+    updateUser(user_id: number, updated_data: object, user: User): Promise<User> {
         this.isAdmin(user)
         return this.db.user.update({
             where: {
@@ -43,7 +44,7 @@ class UserService implements IUserService<PrismaClient, User> {
         })
     }
 
-    addToFavorite(user: User, item: Book): void {
+    addToFavorite(user: User, item: Item): void {
         this.db.userFavorite.create({
             data: {
                 userId: user.id,

@@ -1,9 +1,10 @@
+import {User, Item} from "@prisma/client";
 
-interface IBookService<D, T extends IBook> {
+export interface IBookService<D, T extends Item, U extends User> {
     db: D
-    getAllBooks(): T[]
-    createBook(name: string, author: string, user: IUser): T
-    updateBook(id: number, updated_data: object, user: IUser): T
-    deleteBook(id: number, user: IUser): void
-    getBooksWithFilters(filter_word: string): T[]
+    getAllBooks(): Promise<T[]>
+    createBook(name: string, author: string, user: U): Promise<T>
+    updateBook(id: number, updated_data: object, user: U): Promise<T>
+    deleteBook(id: number, user: U): void
+    getBooksWithFilters(filter_word: string): Promise<T[]>
 }

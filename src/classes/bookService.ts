@@ -1,22 +1,26 @@
-import {PrismaClient} from "prisma/prisma-client/scripts/default-index";
+import {PrismaClient, User, Item, Role} from '@prisma/client';
+import {IBookService} from "../interfaces/bookService";
 
-
-class BookService implements IBookService<PrismaClient, Book> {
+export class BookService implements IBookService<PrismaClient, Item, User> {
     db: PrismaClient
 
+    constructor(db_instance: PrismaClient) {
+        this.db = db_instance
+    }
+
     private isLibrarian(user: User) {
-        if (user.role !== Roles.LIBRARIAN) {
+        if (user.role !== Role.LIBRARIAN) {
             throw new Error('You are not librarian')
         }
     }
 
-    getAllBooks(): Book[] {
-        return this.db.book.findMany()
+    async getAllBooks(): Promise<Item[]> {
+        return this.db.item.findMany()
     }
 
-    createBook(name: string, author: string, user: User): Book {
+    async createBook(name: string, author: string, user: User): Promise<Item> {
         this.isLibrarian(user)
-        return this.db.book.create({
+        return this.db.item.create({
                 data: {
                     name: name,
                     author: author
@@ -25,9 +29,9 @@ class BookService implements IBookService<PrismaClient, Book> {
         )
     }
 
-    updateBook(book_id: number, updated_data: object, user: User): Book {
+    async updateBook(book_id: number, updated_data: object, user: User): Promise<Item> {
         this.isLibrarian(user)
-        return this.db.book.update({
+        return this.db.item.update({
             where: {
                 id: book_id
             },
@@ -35,17 +39,17 @@ class BookService implements IBookService<PrismaClient, Book> {
         })
     }
 
-    deleteBook(book_id: number, user: User) {
+    async deleteBook(book_id: number, user: User) {
         this.isLibrarian(user)
-        this.db.book.delete({
+        this.db.item.delete({
             where: {
                 id: book_id
             }
         })
     }
 
-    getBooksWithFilters(filter_word: string): Book[] {
-        return this.db.book.findMany({
+    async getBooksWithFilters(filter_word: string): Promise<Item[]> {
+        return this.db.item.findMany({
             where: {
                 OR: [{
                     name: {contains: filter_word},
